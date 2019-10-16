@@ -1,7 +1,41 @@
+/*
+思路：每个格子由div和p元素组成
+div的ip为pos_0格式，标记固定位置
+p的ip在代码中动态生成，为num0格式，与p中文本节点的文本保持一致
+初始时p元素没有id和文本节点
+格子的不同颜色通过p元素id设置。
+
+游戏功能：
+初始时产生两个格子
+按下上下左右键时，判断能否移动格子，能：移动格子，同时在空白位置生成新的格子 否：等待下次按键
+当16个格子的p元素均有文本节点时，且上下左右均无法移动格子时，游戏结束。
+1.按键
+2.判断该方向能否移动
+3.能移动，移动格子，同时自动生成格子
+4.判断游戏是否结束
+5.游戏未结束，等待再次按键，循环1
+
+
+数据结构：
+用4*4的二维数组final_boxs存储处理后的16个格子文本值（按键后棋盘从初始状态将要合并计算得到的状态）
+对final_boxs进行两次循环操作：第一次取curruent_box中非零值组成新数组1，第二次将数组1数字计算合并后得到final_boxs
+用4*4的二维数组current_boxs存储当前的16个格子文本值（按键后棋盘的初始状态）
+
+
+工具函数：
+1.为特定div格子的p元素生成随机数字的文本节点，并设置p的id randomGenBox(div_ele)
+2.获取当前棋盘getCurBoxs(); return cur_boxs;
+3.获取当前非空棋盘getNotEmptyBox(cur_boxs); return nempty_boxs;
+4.获取计算后的棋盘getFinalBoxs(nempty_boxs); return final_boxs;
+5.判断棋盘能否移动：nempty_box 是否等于 final_boxs; var canMove;
+2.判断棋盘是否满：通过遍历div格子中p元素是否有子节点，且子节点为文本节点，且id值是否设置
+3.判断能否移动：
+ */
+
+
 function addLoadEvent(func){
 	var oldonload = window.onload;
 	if(typeof window.onload != 'function'){
-			
 		window.onload = func();
 	}
 	else {
@@ -11,14 +45,23 @@ function addLoadEvent(func){
 		}
 	}
 }
-function randomGenBox(div_box_element){//为当前格子创建随机数字
+/*
+为当前div中p元素创建随机数字，写入id
+先判断当前p中是否有文本节点，有的话清除，以及重写id
+ */
+function randomGenBox(div_box_element){//为当前格子p元素创建随机数字，并写id属性。
 	var random = Math.floor(Math.random()*10)<5?2:4;
-	var p_num = div_box_element.getElementsByTagName("p")[0];
+	var p_num = div_box_element.firstChild;
+	if(p_num.getAttribute("id") != null){
+		p_num.setAttribute("id", "");
+		var text_ele = p_num.firstChild;
+		p_num.removeChild(text_ele);
+	}
 	var text_num = document.createTextNode(random);
 	p_num.appendChild(text_num);
 	p_num.setAttribute("id", "num"+text_num.nodeValue);
-
 }
+
 function gameInit(){//游戏初始化，创建两个格子
 	if(!document.getElementById) return false;
 	if(!document.getElementsByTagName) return false;
@@ -26,19 +69,11 @@ function gameInit(){//游戏初始化，创建两个格子
 	if(!document.createTextNode) return false;
 
 	var divs_row = document.getElementsByClassName("row");
-	for(var i =0;i<divs_row.length;i++){
-		var divs_box = document.getElementsByClassName("box");
-		for(var j=0;j<divs_box.length;j++){
-			var p_node = divs_box[j].getElementsByTagName("p")[0];
-			if(p_node.firstChild!=null && p_node.firstChild.nodeType==3) return false;
-		}
-	}
 	var random = Math.floor(Math.random()*16);
 	var div_box_element = document.getElementById("pos_"+random);
-
 	randomGenBox(div_box_element);
-	var random1 = Math.floor(Math.random()*16);
 
+	var random1 = Math.floor(Math.random()*16);
 	while (random1==random) {
 		random1 = Math.floor(Math.random()*16);
 	}
@@ -46,20 +81,216 @@ function gameInit(){//游戏初始化，创建两个格子
 	randomGenBox(div_box_element1);
 }
 
+//2.获取当前棋盘
+function getCurBoxs(){
+	var curBoxs = new Array(n);
+	for(var i=0;i<n;i++){
+		var lineBoxs = new Array(n); 
+		for(var j=0;j<n;j++){//遍历第j列格子，获取cur_boxs数组
+			var pos = 4*j+i;
+			var div_ele = document.getElementById("pos_"+pos);
+			var p_ele = div_ele.firstChild;
+			if(p_ele.getAttribute("id") != null){
+				if(p_ele.firstChild == null){
+					alert("bug1");
+					return;
+				}
+				var text = p_ele.firstChild.nodeValue;
+				lineBoxs[j] = text;
+			}
+			else {
+				lineBoxs[j] = 0;
+			}
+		}
+		curBoxs[i] = lineBoxs;
+		console.log("lineBoxs  = "+lineBoxs);
+	}
+	console.log("-------------curBoxs = "+curBoxs)
+	return curBoxs;
+} 
+
+//3.获取当前非空棋盘
+function getNotEmptyBox(cur_boxs,direction){
+	var notEmpBoxs = new Array(n);
+	switch (direction) {
+		case "up":
+		for(var i=0;i<n;i++){
+			var lineBoxs = new Array(n) ;
+			var index = 0;
+			for(var j=0;j<n;j++){
+				if( curBoxs[i][j] != 0){
+					lineBoxs[index] = curBoxs[i][j];
+					index++;
+				}
+			}
+			notEmpBoxs[i] = lineBoxs;
+			console.log("notEmpty lineBoxs = "+lineBoxs);
+		}
+		console.log("-------------notEmpBoxs = "+notEmpBoxs);
+			
+			break;
+		case "down":
+			
+			break;
+		case "left":
+			
+			break;
+		case "right":
+			
+			break;
+		default:
+			// statements_def
+			break;
+	}
+	for(var i = 0; i<n;i++){
+
+	}
+	return notEmpBoxs;
+}
+//4.获取计算后的棋盘
+function getFinalBoxs(nempty_boxs,direction){
+	var finalBoxs = new Array(n);
+	switch (direction) {
+		case "up":
+		for(var i=0;i<n;i++){
+			var lineBoxs = nempty_boxs[i];
+			var length;
+			for(var j=0;j<n;j++){
+				if(lineBoxs[j] != undefined ){
+					length++;
+				}
+			}
+			if(length == 0 || length ==1) continue;
+			else if(length == 2){
+				if(lineBoxs[0] == lineBoxs[1]){
+					lineBoxs[0] += lineBoxs[0];
+					lineBoxs[1] = 0;
+					continue;
+				}
+				else {
+					continue;
+				}
+
+			}
+			else if(length == 3){
+				if(lineBoxs[0] ==lineBoxs[1]){
+					lineBoxs[0] += lineBoxs[0];
+					lineBoxs[1] = lineBoxs[2];
+					lineBoxs[2] = 0;
+				}
+				else if (lineBoxs[1] ==lineBoxs[2]) {
+					lineBoxs[1] += lineBoxs[1];
+					lineBoxs[2] = 0;
+				}
+			}
+			else if (length ==4) {
+				if(lineBoxs[0] != lineBoxs[1]){
+					if(lineBoxs[1] == lineBoxs[2]){
+						lineBoxs[1] +=lineBoxs[1];
+						lineBoxs[2] = lineBoxs[3];
+					}
+					else {
+						if(lineBoxs[2] == lineBoxs[3]){
+							lineBoxs[2] += lineBoxs[2];
+							lineBoxs[3] = 0;
+						}
+					}
+
+				}
+				else if (lineBoxs[0] == lineBoxs[1]){
+					if(lineBoxs[1] != lineBoxs[2]){
+						if(lineBoxs[2] == lineBoxs[3]){
+							lineBoxs[0] += lineBoxs[0];
+							lineBoxs[1] = lineBoxs[2]*2;
+							lineBoxs[2]=0;
+							lineBoxs[3]=0;
+						}
+						else{
+							lineBoxs[0] +=lineBoxs[0];
+							lineBoxs[1]=lineBoxs[2];
+							lineBoxs[2]=lineBoxs[3];
+							lineBoxs[3]=0;							
+						}
+					}
+					else {
+						if(lineBoxs[2] == lineBoxs[3]){
+							lineBoxs[0] += lineBoxs[0];
+							lineBoxs[1] = lineBoxs[2]*2;
+							lineBoxs[2]=0;
+							lineBoxs[3]=0;
+						}
+						else{
+							lineBoxs[0] +=lineBoxs[0];
+							lineBoxs[1]=lineBoxs[2];
+							lineBoxs[2]=lineBoxs[3];
+							lineBoxs[3]=0;							
+						}
+					}	
+				}
+			}
+			finalBoxs[i] = lineBoxs;
+			console.log("lineBoxs = "+lineBoxs);
+		}
+		console.log("finalBoxs = "+finalBoxs);		
+			break;
+		default:
+			// statements_def
+			break;
+	}
+
+	return finalBoxs;	
+} 
+
+//刷新棋盘
+function freshBoxs(fianlBox){
+	for(var i = 0;i<n;i++){
+		for(var j=0;j<n;j++){
+			var num = fianlBox[i][j];
+			var pos = n*j+i;
+			var div_ele = document.getElementById("pos_"+pos);
+			var p_ele = div_ele.firstChild;
+			if(num != undefined){
+				if(p_ele.getAttribute("id") != null){
+					p_ele.setAttribute("id", "num"+num);
+					if(p_ele.firstChild == null){
+						alert("bug2");
+						return false;
+					}
+					else {
+						var text_ele = p_ele.firstChild;
+						p_ele.removeChild(text_ele);
+						var text_new_ele = document.createTextNode(num);
+						p_ele.appendChild(text_new_ele);
+					}
+
+				}
+				else {
+					var text_new_ele = document.createTextNode(num);
+					p_ele.appendChild(text_new_ele);
+					p_ele.setAttribute("id", "num"+num);
+				}
+			}
+			else {
+				if(p_ele.getAttribute("id") != null){
+					p_ele.removeAttribute("id");
+					var text_ele = p_ele.firstChild;
+					p_ele.removeChild(text_ele);
+				}			
+			}
+		}
+	}
+}
+
+
+
 function addBtnEvent(){
 	n = 4;
+	curBoxs = getCurBoxs();
 	var keys = document.getElementsByClassName("operate_btn");
 	for(var i=0;i<keys.length;i++){
 		var key = keys[i];
 		key.onclick = function() {
 			var keyValue = this.getAttribute("id");
-			do{
-				var random = Math.floor(Math.random()*(n*n));
-				var random_ele = document.getElementById("pos_"+random);
-				var random_num = random_ele.firstChild.innerText;
-			}while (random_num != "") ;
-			randomGenBox(random_ele);
-
 			switch (keyValue) {
 				case "up":
 					moveFunction("up");
@@ -81,53 +312,63 @@ function addBtnEvent(){
 	}
 }
 
+
 function moveFunction(){
 	var direction = arguments[0];
+	var notEmptyBoxs = getNotEmptyBox(curBoxs,direction);
+	var finalBoxs = getFinalBoxs(notEmptyBoxs,direction);
+	console.log("finalBoxs:"+finalBoxs);
+	console.log("notEmptyBoxs:"+notEmptyBoxs);
+	var canMove = false;
+	for(var i=0;i<n;i++){
+		for(var j=0;j<n;j++){
 
-	if(direction = "up"){
-		var final_content = new Array(n);//保存最终的二维数组格子值
-		for(var i=0;i<n;i++){		
-			var operate_content =new Array(n);//保存经过计算的一维格子值
-			var line_content = new Array(n);//保存当前列非空的格子值
-			var index = 0;//非空格子值索引
-			for(var j=0;j<n;j++){
-				var pos = 4*j+i;
-				var num = document.getElementById("pos_"+pos).firstChild.innerText;
-				if(num != ""){
-					line_content[index] = num;
-					index++;
-				}
-			}
-			console.log(line_content);
-			for(var m= 0;m<n;m++){
-				if(line_content[m] == undefined)
-					line_content[m] =0;
-			}
-			var operate_index = 0;
-			for(var k=0;k<n-1;k++){
-				var first_val = line_content[k];
-				var second_val = line_content[k+1];
-				if(first_val==second_val && first_val != 0 && second_val!=0){
-					operate_content[operate_index] = parseInt(first_val)+parseInt(second_val);
-					operate_index++;
-					line_content[k+1] = 3;
-					console.log(operate_content);
-				}
-			}
-			final_content[i] = operate_content;
-			operate_content = null;
-			line_content = null;
+			if(curBoxs[i][j] != notEmptyBoxs[i][j] ||finalBoxs[i][j] != notEmptyBoxs[i][j] )
+				canMove = true;
+			break;
 		}
-		console.log(final_content);
-		for(var i=0;i<n;i++){
-			for(var j=0;j<n;j++){
-				var num = final_content[i][j];
-				var flag = 4*i+j;
-				var element = document.getElementById("pos_"+flag);
-				element.setAttribute("id","pos_"+num);
+	}
+	switch (direction) {
+		case "up":
+		if(canMove){
+			freshBoxs(finalBoxs);
+	      //  curBoxs = finalBoxs;
+	        var random_indexs = new Array();
+	        var index = 0; 
+	   		for(var i=0;i<n;i++){
+				for(var j=0;j<n;j++){
+					if(finalBoxs[i][j] == 0){
+						random_indexs[index] = i*n+j;
+						index++;
+					}
+				}
+			}
+			var num = Math.floor(Math.random()*index);
+			var div_ele = document.getElementById("pos_"+num);
+	        randomGenBox(div_ele);
+	        curBoxs = getCurBoxs();
+
+
+		}
+
+			// statements_1
+			break;
+		default:
+			// statements_def
+			break;
+	}
+	var isEnd = 0;
+	for(var i=0;i<n;i++){
+		for(var j=0;j<n;j++){
+			if(curBoxs[i][j] != 0){
+				isEnd ++;
 			}
 		}
 	}
+	if(isEnd>=16){
+		alert("游戏结束！")
+	}
+
 }
 
  addLoadEvent(gameInit);
