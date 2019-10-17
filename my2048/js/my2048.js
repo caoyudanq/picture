@@ -32,344 +32,370 @@ p的ip在代码中动态生成，为num0格式，与p中文本节点的文本保
 3.判断能否移动：
  */
 
-
-function addLoadEvent(func){
-	var oldonload = window.onload;
-	if(typeof window.onload != 'function'){
-		window.onload = func();
-	}
-	else {
-		window.onload = function (){
-			oldonload();
-			func();
-		}
-	}
+function addLoadEvent(func) {
+    var oldonload = window.onload;
+    if (typeof window.onload != 'function') {
+        window.onload = func();
+    } else {
+        window.onload = function() {
+            oldonload();
+            func();
+        }
+    }
 }
 /*
 为当前div中p元素创建随机数字，写入id
 先判断当前p中是否有文本节点，有的话清除，以及重写id
  */
-function randomGenBox(div_box_element){//为当前格子p元素创建随机数字，并写id属性。
-	var random = Math.floor(Math.random()*10)<5?2:4;
-	var p_num = div_box_element.firstChild;
-	if(p_num.getAttribute("id") != null){
-		p_num.setAttribute("id", "");
-		var text_ele = p_num.firstChild;
-		p_num.removeChild(text_ele);
-	}
-	var text_num = document.createTextNode(random);
-	p_num.appendChild(text_num);
-	p_num.setAttribute("id", "num"+text_num.nodeValue);
+function randomGenBox(div_box_element) { //为当前格子p元素创建随机数字，并写id属性。
+    var random = Math.floor(Math.random() * 10) < 5 ? 2 : 4;
+    var p_num = div_box_element.firstChild;
+    if (p_num.getAttribute("id") != null) {
+        p_num.setAttribute("id", "");
+        var text_ele = p_num.firstChild;
+        p_num.removeChild(text_ele);
+    }
+    var text_num = document.createTextNode(random);
+    p_num.appendChild(text_num);
+    p_num.setAttribute("id", "num" + text_num.nodeValue);
 }
 
-function gameInit(){//游戏初始化，创建两个格子
-	if(!document.getElementById) return false;
-	if(!document.getElementsByTagName) return false;
-	if(!document.createElement) return false;
-	if(!document.createTextNode) return false;
+function gameInit() { //游戏初始化，创建两个格子
+    if (!document.getElementById) return false;
+    if (!document.getElementsByTagName) return false;
+    if (!document.createElement) return false;
+    if (!document.createTextNode) return false;
 
-	var divs_row = document.getElementsByClassName("row");
-	var random = Math.floor(Math.random()*16);
-	var div_box_element = document.getElementById("pos_"+random);
-	randomGenBox(div_box_element);
+    var divs_row = document.getElementsByClassName("row");
+    var random = Math.floor(Math.random() * 16);
+    var div_box_element = document.getElementById("pos_" + random);
+    randomGenBox(div_box_element);
 
-	var random1 = Math.floor(Math.random()*16);
-	while (random1==random) {
-		random1 = Math.floor(Math.random()*16);
-	}
-	var div_box_element1 = document.getElementById("pos_"+random1);
-	randomGenBox(div_box_element1);
+    var random1 = Math.floor(Math.random() * 16);
+    while (random1 == random) {
+        random1 = Math.floor(Math.random() * 16);
+    }
+    var div_box_element1 = document.getElementById("pos_" + random1);
+    randomGenBox(div_box_element1);
 }
 
 //2.获取当前棋盘
-function getCurBoxs(){
-	var curBoxs = new Array(n);
-	for(var i=0;i<n;i++){
-		var lineBoxs = new Array(n); 
-		for(var j=0;j<n;j++){//遍历第j列格子，获取cur_boxs数组
-			var pos = 4*j+i;
-			var div_ele = document.getElementById("pos_"+pos);
-			var p_ele = div_ele.firstChild;
-			if(p_ele.getAttribute("id") != null){
-				if(p_ele.firstChild == null){
-					alert("bug1");
-					return;
-				}
-				var text = p_ele.firstChild.nodeValue;
-				lineBoxs[j] = text;
-			}
-			else {
-				lineBoxs[j] = 0;
-			}
-		}
-		curBoxs[i] = lineBoxs;
-		console.log("lineBoxs  = "+lineBoxs);
-	}
-	console.log("-------------curBoxs = "+curBoxs)
-	return curBoxs;
-} 
+function getCurBoxs() {
+    var curBoxs = new Array(n);
+    for (var i = 0; i < n; i++) {
+        var lineBoxs = new Array(n);
+        for (var j = 0; j < n; j++) { //遍历第i列格子，获取cur_boxs数组
+            var pos = 4 * j + i;
+            var div_ele = document.getElementById("pos_" + pos);
+            var p_ele = div_ele.firstChild;
+            if (p_ele.getAttribute("id") != null) {
+                if (p_ele.firstChild == null) {
+                    alert("bug1");
+                    return;
+                }
+                var text = p_ele.firstChild.nodeValue;
+                lineBoxs[j] = text;
+            } else {
+                lineBoxs[j] = 0;
+            }
+        }
+        curBoxs[i] = lineBoxs;
+        console.log("lineBoxs  = " + lineBoxs);
+    }
+    console.log("-------------curBoxs = " + curBoxs)
+    return curBoxs;
+}
 
 //3.获取当前非空棋盘
-function getNotEmptyBox(cur_boxs,direction){
-	var notEmpBoxs = new Array(n);
-	switch (direction) {
-		case "up":
-		for(var i=0;i<n;i++){
-			var lineBoxs = new Array(n) ;
-			var index = 0;
-			for(var j=0;j<n;j++){
-				if( curBoxs[i][j] != 0){
-					lineBoxs[index] = curBoxs[i][j];
-					index++;
-				}
-			}
-			notEmpBoxs[i] = lineBoxs;
-			console.log("notEmpty lineBoxs = "+lineBoxs);
-		}
-		console.log("-------------notEmpBoxs = "+notEmpBoxs);
-			
-			break;
-		case "down":
-			
-			break;
-		case "left":
-			
-			break;
-		case "right":
-			
-			break;
-		default:
-			// statements_def
-			break;
-	}
-	for(var i = 0; i<n;i++){
-
-	}
-	return notEmpBoxs;
+function getNotEmptyBox(cur_boxs) {
+    var notEmpBoxs = new Array(n);
+    for (var i = 0; i < n; i++) {
+        var lineBoxs = new Array(n);
+        var index = 0;
+        for (var j = 0; j < n; j++) {
+            if (curBoxs[i][j] != 0) {
+                lineBoxs[index] = curBoxs[i][j];
+                index++;
+            }
+        }
+        lineBoxs = addZero(lineBoxs, index, n);
+        notEmpBoxs[i] = lineBoxs;
+        console.log("notEmpty lineBoxs = " + lineBoxs);
+    }
+    console.log("-------------notEmpBoxs = " + notEmpBoxs);
+    return notEmpBoxs;
 }
 //4.获取计算后的棋盘
-function getFinalBoxs(nempty_boxs,direction){
-	var finalBoxs = new Array(n);
-	switch (direction) {
-		case "up":
-		for(var i=0;i<n;i++){
-			var lineBoxs = nempty_boxs[i];
-			var length;
-			for(var j=0;j<n;j++){
-				if(lineBoxs[j] != undefined ){
-					length++;
-				}
-			}
-			if(length == 0 || length ==1) continue;
-			else if(length == 2){
-				if(lineBoxs[0] == lineBoxs[1]){
-					lineBoxs[0] += lineBoxs[0];
-					lineBoxs[1] = 0;
-					continue;
-				}
-				else {
-					continue;
-				}
+function getFinalBoxs(nempty_boxs) {
+    var finalBoxs = new Array(n);
+    for (var i = 0; i < n; i++) {
+        var lineBoxs = nempty_boxs[i];
+        var length = 0;
+        for (var j = 0; j < n; j++) {
+            if (lineBoxs[j] != 0) {
+                length++;
+            }
+        }
+        if (length == 0) {
+            lineBoxs[0] = lineBoxs[1] = lineBoxs[2] = lineBoxs[3] = 0;
+        } else if (length == 1) {
+            lineBoxs[1] = lineBoxs[2] = lineBoxs[3] = 0;
+        } else if (length == 2) {
+            if (lineBoxs[0] == lineBoxs[1]) {
+                lineBoxs[0] = parseInt(lineBoxs[0]) * 2;
+                lineBoxs[1] = 0;
+            }
+        } else if (length == 3) {
+            if (lineBoxs[0] == lineBoxs[1]) {
+                lineBoxs[0] = parseInt(lineBoxs[0]) * 2;
+                lineBoxs[1] = lineBoxs[2];
+                lineBoxs[2] = 0;
+            } else if (lineBoxs[1] == lineBoxs[2]) {
+                lineBoxs[1] = parseInt(lineBoxs[1]) * 2;
+                lineBoxs[2] = 0;
+            }
+        } else if (length == 4) {
+            if (lineBoxs[0] != lineBoxs[1]) {
+                if (lineBoxs[1] == lineBoxs[2]) {
+                    lineBoxs[1] = parseInt(lineBoxs[1]) * 2;
+                    lineBoxs[2] = lineBoxs[3];
+                } else {
+                    if (lineBoxs[2] == lineBoxs[3]) {
+                        lineBoxs[2] = parseInt(lineBoxs[2]) * 2;
+                        lineBoxs[3] = 0;
+                    }
+                }
 
-			}
-			else if(length == 3){
-				if(lineBoxs[0] ==lineBoxs[1]){
-					lineBoxs[0] += lineBoxs[0];
-					lineBoxs[1] = lineBoxs[2];
-					lineBoxs[2] = 0;
-				}
-				else if (lineBoxs[1] ==lineBoxs[2]) {
-					lineBoxs[1] += lineBoxs[1];
-					lineBoxs[2] = 0;
-				}
-			}
-			else if (length ==4) {
-				if(lineBoxs[0] != lineBoxs[1]){
-					if(lineBoxs[1] == lineBoxs[2]){
-						lineBoxs[1] +=lineBoxs[1];
-						lineBoxs[2] = lineBoxs[3];
-					}
-					else {
-						if(lineBoxs[2] == lineBoxs[3]){
-							lineBoxs[2] += lineBoxs[2];
-							lineBoxs[3] = 0;
-						}
-					}
+            } else if (lineBoxs[0] == lineBoxs[1]) {
+                if (lineBoxs[1] != lineBoxs[2]) {
+                    if (lineBoxs[2] == lineBoxs[3]) {
+                        lineBoxs[0] = parseInt(lineBoxs[0]) * 2;
+                        lineBoxs[1] = lineBoxs[2] * 2;
+                        lineBoxs[2] = 0;
+                        lineBoxs[3] = 0;
+                    } else {
+                        lineBoxs[0] = parseInt(lineBoxs[0]) * 2;
+                        lineBoxs[1] = lineBoxs[2];
+                        lineBoxs[2] = lineBoxs[3];
+                        lineBoxs[3] = 0;
+                    }
+                } else {
+                    if (lineBoxs[2] == lineBoxs[3]) {
+                        lineBoxs[0] = parseInt(lineBoxs[0]) * 2;
+                        lineBoxs[1] = lineBoxs[2] * 2;
+                        lineBoxs[2] = 0;
+                        lineBoxs[3] = 0;
+                    } else {
+                        lineBoxs[0] = parseInt(lineBoxs[0]) * 2;
+                        lineBoxs[1] = lineBoxs[2];
+                        lineBoxs[2] = lineBoxs[3];
+                        lineBoxs[3] = 0;
+                    }
+                }
+            }
+        }
+        finalBoxs[i] = lineBoxs;
 
-				}
-				else if (lineBoxs[0] == lineBoxs[1]){
-					if(lineBoxs[1] != lineBoxs[2]){
-						if(lineBoxs[2] == lineBoxs[3]){
-							lineBoxs[0] += lineBoxs[0];
-							lineBoxs[1] = lineBoxs[2]*2;
-							lineBoxs[2]=0;
-							lineBoxs[3]=0;
-						}
-						else{
-							lineBoxs[0] +=lineBoxs[0];
-							lineBoxs[1]=lineBoxs[2];
-							lineBoxs[2]=lineBoxs[3];
-							lineBoxs[3]=0;							
-						}
-					}
-					else {
-						if(lineBoxs[2] == lineBoxs[3]){
-							lineBoxs[0] += lineBoxs[0];
-							lineBoxs[1] = lineBoxs[2]*2;
-							lineBoxs[2]=0;
-							lineBoxs[3]=0;
-						}
-						else{
-							lineBoxs[0] +=lineBoxs[0];
-							lineBoxs[1]=lineBoxs[2];
-							lineBoxs[2]=lineBoxs[3];
-							lineBoxs[3]=0;							
-						}
-					}	
-				}
-			}
-			finalBoxs[i] = lineBoxs;
-			console.log("lineBoxs = "+lineBoxs);
-		}
-		console.log("finalBoxs = "+finalBoxs);		
-			break;
-		default:
-			// statements_def
-			break;
-	}
+        console.log("lineBoxs = " + lineBoxs);
+    }
+    finalBoxs = addZero(finalBoxs, n);
+    console.log("finalBoxs = " + finalBoxs);
 
-	return finalBoxs;	
-} 
+    return finalBoxs;
+}
 
 //刷新棋盘
-function freshBoxs(fianlBox){
-	for(var i = 0;i<n;i++){
-		for(var j=0;j<n;j++){
-			var num = fianlBox[i][j];
-			var pos = n*j+i;
-			var div_ele = document.getElementById("pos_"+pos);
-			var p_ele = div_ele.firstChild;
-			if(num != undefined){
-				if(p_ele.getAttribute("id") != null){
-					p_ele.setAttribute("id", "num"+num);
-					if(p_ele.firstChild == null){
-						alert("bug2");
-						return false;
-					}
-					else {
-						var text_ele = p_ele.firstChild;
-						p_ele.removeChild(text_ele);
-						var text_new_ele = document.createTextNode(num);
-						p_ele.appendChild(text_new_ele);
-					}
+function freshBoxs(fianlBox) {
+    for (var i = 0; i < n; i++) {
+        for (var j = 0; j < n; j++) {
+            var num = fianlBox[i][j];
+            var pos = n * j + i;
+            var div_ele = document.getElementById("pos_" + pos);
+            var p_ele = div_ele.firstChild;
+            if (num != 0) {
+                if (p_ele.getAttribute("id") != null) {
+                    p_ele.setAttribute("id", "num" + num);
+                    if (p_ele.firstChild == null) {
+                        alert("bug2");
+                        return false;
+                    } else {
+                        var text_ele = p_ele.firstChild;
+                        p_ele.removeChild(text_ele);
+                        var text_new_ele = document.createTextNode(num);
+                        p_ele.appendChild(text_new_ele);
+                    }
 
-				}
-				else {
-					var text_new_ele = document.createTextNode(num);
-					p_ele.appendChild(text_new_ele);
-					p_ele.setAttribute("id", "num"+num);
-				}
-			}
-			else {
-				if(p_ele.getAttribute("id") != null){
-					p_ele.removeAttribute("id");
-					var text_ele = p_ele.firstChild;
-					p_ele.removeChild(text_ele);
-				}			
-			}
-		}
-	}
+                } else {
+                    var text_new_ele = document.createTextNode(num);
+                    p_ele.appendChild(text_new_ele);
+                    p_ele.setAttribute("id", "num" + num);
+                }
+            } else {
+                if (p_ele.getAttribute("id") != null) {
+                    p_ele.removeAttribute("id");
+                    var text_ele = p_ele.firstChild;
+                    p_ele.removeChild(text_ele);
+                }
+            }
+        }
+    }
 }
 
 
 
-function addBtnEvent(){
-	n = 4;
-	curBoxs = getCurBoxs();
-	var keys = document.getElementsByClassName("operate_btn");
-	for(var i=0;i<keys.length;i++){
-		var key = keys[i];
-		key.onclick = function() {
-			var keyValue = this.getAttribute("id");
-			switch (keyValue) {
-				case "up":
-					moveFunction("up");
-					break;
-				case "down":
-					// statements_1
-					break;
-				case "left":
-					// statements_1
-					break;
-				case "right":
-					// statements_1
-					break;										
-				default:
-					// statements_def
-					break;
-			}
-		}
-	}
+function addBtnEvent() {
+    n = 4;
+    var keys = document.getElementsByClassName("operate_btn");
+    for (var i = 0; i < keys.length; i++) {
+        var key = keys[i];
+        key.onclick = function() {
+            var keyValue = this.getAttribute("id");
+            switch (keyValue) {
+                case "up":
+                    curBoxs = getCurBoxs();
+                    moveFunction();
+                    break;
+                case "down":
+                    genUpToDown();
+                    curBoxs = getCurBoxs();
+                    moveFunction();
+                    resumeUp();
+                    break;
+                case "left":
+                    genUpToLeft();
+                    curBoxs = getCurBoxs();
+                    moveFunction();
+                    resumeUp();
+                    break;
+                case "right":
+                    genUpToLeft();
+                    reverse();
+                    curBoxs = getCurBoxs();
+                    moveFunction();
+                    resumeUp();
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 }
 
+function resumeUp() {
+    var divBoxs = document.getElementsByClassName("box");
+    for (var i = 0; i < divBoxs.length; i++) {
+        divBoxs[i].setAttribute("id", "pos_" + i);
+    }
+}
 
-function moveFunction(){
-	var direction = arguments[0];
-	var notEmptyBoxs = getNotEmptyBox(curBoxs,direction);
-	var finalBoxs = getFinalBoxs(notEmptyBoxs,direction);
-	console.log("finalBoxs:"+finalBoxs);
-	console.log("notEmptyBoxs:"+notEmptyBoxs);
-	var canMove = false;
-	for(var i=0;i<n;i++){
-		for(var j=0;j<n;j++){
+function genUpToDown() {
+    for (var i = 0; i < n; i++) {
+        for (var j = 0; j < 2; j++) {
+            var pos1 = 4 * j + i;
+            var pos2 = 4 * (3 - j) + i;
+            var pos1_div = document.getElementById("pos_" + pos1);
+            var pos2_div = document.getElementById("pos_" + pos2);
+            pos1_div.setAttribute("id", "pos_" + pos2);
+            pos2_div.setAttribute("id", "pos_" + pos1);
+        }
+    }
+}
 
-			if(curBoxs[i][j] != notEmptyBoxs[i][j] ||finalBoxs[i][j] != notEmptyBoxs[i][j] )
-				canMove = true;
-			break;
-		}
-	}
-	switch (direction) {
-		case "up":
-		if(canMove){
-			freshBoxs(finalBoxs);
-	      //  curBoxs = finalBoxs;
-	        var random_indexs = new Array();
-	        var index = 0; 
-	   		for(var i=0;i<n;i++){
-				for(var j=0;j<n;j++){
-					if(finalBoxs[i][j] == 0){
-						random_indexs[index] = i*n+j;
-						index++;
-					}
-				}
-			}
-			var num = Math.floor(Math.random()*index);
-			var div_ele = document.getElementById("pos_"+num);
-	        randomGenBox(div_ele);
-	        curBoxs = getCurBoxs();
+function genUpToLeft() {
+    for (var i = 0; i < n; i++) {
+        for (var j = n - 1; j > i; j--) {
+            var pos1 = 4 * i + j;
+            var pos2 = 4 * j + i;
+            var pos1_div = document.getElementById("pos_" + pos1);
+            var pos2_div = document.getElementById("pos_" + pos2);
+            pos1_div.setAttribute("id", "pos_" + pos2);
+            pos2_div.setAttribute("id", "pos_" + pos1);
+        }
+    }
+}
 
+function reverse() {
+    for (var i = 0; i < n * n / 2; i++) {
+        var pos1 = i;
+        var pos2 = 15 - i;
+        var pos1_div = document.getElementById("pos_" + pos1);
+        var pos2_div = document.getElementById("pos_" + pos2);
+        pos1_div.setAttribute("id", "pos_" + pos2);
+        pos2_div.setAttribute("id", "pos_" + pos1);
 
-		}
+    }
+}
 
-			// statements_1
-			break;
-		default:
-			// statements_def
-			break;
-	}
-	var isEnd = 0;
-	for(var i=0;i<n;i++){
-		for(var j=0;j<n;j++){
-			if(curBoxs[i][j] != 0){
-				isEnd ++;
-			}
-		}
-	}
-	if(isEnd>=16){
-		alert("游戏结束！")
-	}
+function moveFunction() {
+    var notEmptyBoxs = getNotEmptyBox(curBoxs);
+    var finalBoxs = getFinalBoxs(notEmptyBoxs);
+    console.log("finalBoxs:" + finalBoxs);
+    console.log("notEmptyBoxs:" + notEmptyBoxs);
+    var canMove = false;
+    for (var i = 0; i < n; i++) {
+        for (var j = 0; j < n; j++) {
+            if (curBoxs[i][j] != notEmptyBoxs[i][j] || finalBoxs[i][j] != notEmptyBoxs[i][j]) {
+                canMove = true;
+                break;
+            }
+        }
+    }
+    if (canMove) {//刷新棋盘，同时生成一个新的格子
+        freshBoxs(finalBoxs);
+        var random_indexs = new Array();
+        var index = 0;
+        for (var i = 0; i < n; i++) {
+            for (var j = 0; j < n; j++) {
+                if (finalBoxs[i][j] == 0) {
+                    random_indexs[index] = j * n + i;
+                    index++;
+                }
+            }
+        }
+        var num = Math.floor(Math.random() * index);
+        var div_ele = document.getElementById("pos_" + random_indexs[num]);
+        randomGenBox(div_ele);
+        canMove = false;
+    }
+    curBoxs = getCurBoxs();//获取刷新后的棋盘
+    var isOver = isWin(curBoxs);
+    if(isOver) alert("游戏结束！");
 
 }
 
- addLoadEvent(gameInit);
- addLoadEvent(addBtnEvent);
+function addZero(myArray, index, n) {
+    for (var i = index; i < n; i++) {
+        myArray[i] = 0;
+    }
+    return myArray;
+}
+function isWin(curBoxs){
+	var notEmptyBoxs = getNotEmptyBox(curBoxs);
+    var finalBoxs = getFinalBoxs(notEmptyBoxs);
+    var canMove = false;
+    for (var i = 0; i < n; i++) {
+        for (var j = 0; j < n; j++) {
+            if (curBoxs[i][j] != notEmptyBoxs[i][j] || finalBoxs[i][j] != notEmptyBoxs[i][j]) {
+                canMove = true;
+                break;
+            }
+        }
+        if(canMove) break;
+    }
+    var isEnd = 0;
+    for (var i = 0; i < n; i++) {
+        for (var j = 0; j < n; j++) {
+            if (curBoxs[i][j] != 0) {
+                isEnd++;
+            }
+        }
+    }
+    if (isEnd >= 16 && !canMove) {
+        
+        return true;
+    }else {
+    	return false;
+    }
+}
+addLoadEvent(gameInit);
+addLoadEvent(addBtnEvent);
