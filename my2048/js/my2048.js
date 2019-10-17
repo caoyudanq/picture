@@ -241,8 +241,6 @@ function freshBoxs(fianlBox) {
     }
 }
 
-
-
 function addBtnEvent() {
     n = 4;
     var keys = document.getElementsByClassName("operate_btn");
@@ -276,6 +274,10 @@ function addBtnEvent() {
                     break;
                 default:
                     break;
+            }
+            var gameOver = isOver();
+            if(gameOver) {
+                setTimeout(function(){alert("游戏结束！")},"1000");
             }
         }
     }
@@ -352,15 +354,13 @@ function moveFunction() {
                 }
             }
         }
-        var num = Math.floor(Math.random() * index);
-        var div_ele = document.getElementById("pos_" + random_indexs[num]);
-        randomGenBox(div_ele);
+        if(index != 0){
+            var num = Math.floor(Math.random() * index);
+            var div_ele = document.getElementById("pos_" + random_indexs[num]);
+            randomGenBox(div_ele);
+        }
         canMove = false;
     }
-    curBoxs = getCurBoxs();//获取刷新后的棋盘
-    var isOver = isWin(curBoxs);
-    if(isOver) alert("游戏结束！");
-
 }
 
 function addZero(myArray, index, n) {
@@ -369,8 +369,40 @@ function addZero(myArray, index, n) {
     }
     return myArray;
 }
-function isWin(curBoxs){
-	var notEmptyBoxs = getNotEmptyBox(curBoxs);
+function isOver(){
+    var isOverUp = false;
+    var isOverDown = false;
+    var isOverLeft = false;
+    var isOverDown = false;
+
+    curBoxs = getCurBoxs();
+    isOverUp = isOverDirect(curBoxs);
+
+    genUpToDown();
+    curBoxs = getCurBoxs();
+    isOverDown = isOverDirect(curBoxs);
+    resumeUp();
+
+    genUpToLeft();
+    curBoxs = getCurBoxs();
+    isOverLeft = isOverDirect(curBoxs);
+    resumeUp();
+
+    genUpToLeft();
+    reverse();
+    curBoxs = getCurBoxs();
+    isOverRight = isOverDirect(curBoxs);
+    resumeUp();
+
+    if(isOverUp&&isOverDown&&isOverLeft&&isOverRight){
+        return true;
+    }else {
+        return false;
+    }
+}
+
+function isOverDirect(curBoxs){  
+    var notEmptyBoxs = getNotEmptyBox(curBoxs);
     var finalBoxs = getFinalBoxs(notEmptyBoxs);
     var canMove = false;
     for (var i = 0; i < n; i++) {
@@ -380,22 +412,11 @@ function isWin(curBoxs){
                 break;
             }
         }
-        if(canMove) break;
+        if(canMove){
+            return false;
+        } 
     }
-    var isEnd = 0;
-    for (var i = 0; i < n; i++) {
-        for (var j = 0; j < n; j++) {
-            if (curBoxs[i][j] != 0) {
-                isEnd++;
-            }
-        }
-    }
-    if (isEnd >= 16 && !canMove) {
-        
-        return true;
-    }else {
-    	return false;
-    }
+    return true;
 }
 addLoadEvent(gameInit);
 addLoadEvent(addBtnEvent);
