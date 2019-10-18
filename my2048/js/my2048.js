@@ -120,9 +120,7 @@ function getNotEmptyBox(cur_boxs) {
         }
         lineBoxs = addZero(lineBoxs, index, n);
         notEmpBoxs[i] = lineBoxs;
-        console.log("notEmpty lineBoxs = " + lineBoxs);
     }
-    console.log("-------------notEmpBoxs = " + notEmpBoxs);
     return notEmpBoxs;
 }
 //4.获取计算后的棋盘
@@ -204,7 +202,7 @@ function getFinalBoxs(nempty_boxs) {
     return finalBoxs;
 }
 
-//刷新棋盘
+//根据最终计算结果刷新棋盘
 function freshBoxs(fianlBox) {
     for (var i = 0; i < n; i++) {
         for (var j = 0; j < n; j++) {
@@ -240,7 +238,7 @@ function freshBoxs(fianlBox) {
         }
     }
 }
-
+//增加按钮点击事件
 function addBtnEvent() {
     n = 4;
     var keys = document.getElementsByClassName("operate_btn");
@@ -254,23 +252,23 @@ function addBtnEvent() {
                     moveFunction();
                     break;
                 case "down":
-                    genUpToDown();
-                    curBoxs = getCurBoxs();
+                    genUpToDown();//转换棋盘
+                    curBoxs = getCurBoxs();//获取转换后的棋盘
                     moveFunction();
-                    resumeUp();
+                    resumeUp();//恢复棋盘
                     break;
                 case "left":
-                    genUpToLeft();
-                    curBoxs = getCurBoxs();
+                    genUpToLeft();//转换棋盘
+                    curBoxs = getCurBoxs();//获取转换后的棋盘
                     moveFunction();
-                    resumeUp();
+                    resumeUp();//恢复棋盘
                     break;
                 case "right":
-                    genUpToLeft();
-                    reverse();
-                    curBoxs = getCurBoxs();
+                    genUpToLeft();//转换为向左的棋盘
+                    reverse();//反转棋盘
+                    curBoxs = getCurBoxs();//获取当前棋盘
                     moveFunction();
-                    resumeUp();
+                    resumeUp();//恢复棋盘
                     break;
                 default:
                     break;
@@ -282,14 +280,14 @@ function addBtnEvent() {
         }
     }
 }
-
+//恢复棋盘
 function resumeUp() {
     var divBoxs = document.getElementsByClassName("box");
     for (var i = 0; i < divBoxs.length; i++) {
         divBoxs[i].setAttribute("id", "pos_" + i);
     }
 }
-
+//向上的棋盘转换成向下的
 function genUpToDown() {
     for (var i = 0; i < n; i++) {
         for (var j = 0; j < 2; j++) {
@@ -302,7 +300,7 @@ function genUpToDown() {
         }
     }
 }
-
+//向上的棋盘转换成向左的
 function genUpToLeft() {
     for (var i = 0; i < n; i++) {
         for (var j = n - 1; j > i; j--) {
@@ -315,7 +313,7 @@ function genUpToLeft() {
         }
     }
 }
-
+//反转棋盘
 function reverse() {
     for (var i = 0; i < n * n / 2; i++) {
         var pos1 = i;
@@ -327,7 +325,7 @@ function reverse() {
 
     }
 }
-
+//移动棋盘
 function moveFunction() {
     var notEmptyBoxs = getNotEmptyBox(curBoxs);
     var finalBoxs = getFinalBoxs(notEmptyBoxs);
@@ -369,6 +367,7 @@ function addZero(myArray, index, n) {
     }
     return myArray;
 }
+//判断游戏结束
 function isOver(){
     var isOverUp = false;
     var isOverDown = false;
@@ -376,22 +375,22 @@ function isOver(){
     var isOverDown = false;
 
     curBoxs = getCurBoxs();
-    isOverUp = isOverDirect(curBoxs);
+    isOverUp = isOverDirect(curBoxs);//向上无法移动
 
     genUpToDown();
     curBoxs = getCurBoxs();
-    isOverDown = isOverDirect(curBoxs);
+    isOverDown = isOverDirect(curBoxs);//向下无法移动
     resumeUp();
 
     genUpToLeft();
     curBoxs = getCurBoxs();
-    isOverLeft = isOverDirect(curBoxs);
+    isOverLeft = isOverDirect(curBoxs);//向左无法移动
     resumeUp();
 
     genUpToLeft();
     reverse();
     curBoxs = getCurBoxs();
-    isOverRight = isOverDirect(curBoxs);
+    isOverRight = isOverDirect(curBoxs);//向右无法移动
     resumeUp();
 
     if(isOverUp&&isOverDown&&isOverLeft&&isOverRight){
@@ -400,7 +399,7 @@ function isOver(){
         return false;
     }
 }
-
+//判断一个方向能否移动
 function isOverDirect(curBoxs){  
     var notEmptyBoxs = getNotEmptyBox(curBoxs);
     var finalBoxs = getFinalBoxs(notEmptyBoxs);
