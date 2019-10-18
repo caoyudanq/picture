@@ -277,7 +277,7 @@ function addBtnEvent() {
             }
             var gameOver = isOver();
             if(gameOver) {
-                setTimeout(function(){alert("游戏结束！")},"1000");
+                setTimeout(function(){alert("游戏结束！")},"500");
             }
         }
     }
